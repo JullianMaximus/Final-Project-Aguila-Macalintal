@@ -156,6 +156,49 @@ class CartItem {
             clearCart();
         }
     };
+    class User {
+        public:
+            string username;
+            string password;
+        
+            User(const string& uname, const string& pwd) : username(uname), password(pwd) {}
+        };
+        
+        class UserSystem {
+        private:
+            vector<User> users;
+        
+        public:
+            void signup(const string& uname, const string& pwd) {
+                for (const auto& u : users) {
+                    if (u.username == uname) {
+                        cout << "Username already exists.\n";
+                        return;
+                    }
+                }
+                if (uname.empty() || pwd.empty()) {
+                    cout << "Username and password cannot be empty.\n";
+                    return;
+                }
+                users.push_back(User(uname, pwd));
+                cout << "Signup successful!\n";
+            }
+        
+            bool login(const string& uname, const string& pwd) const {
+                for (const auto& u : users) {
+                    if (u.username == uname && u.password == pwd) {
+                        cout << "Login successful!\n";
+                        return true;
+                    }
+                }
+                cout << "Invalid credentials.\n";
+                return false;
+            }
+        
+            bool noUsers() const {
+                return users.empty();
+            }
+        };
 int main() {
 
     return 0;
