@@ -45,6 +45,28 @@ public:
     virtual ~Product() {}
 };
 
+class Clothing : public Product {
+private:
+    int stock;
+
+public:
+    Clothing(const string& name, double price, int stock)
+        : Product(name, price), stock(stock) {}
+
+    int getStock() const { return stock; }
+
+    void reduceStock(int qty) {
+        if (qty <= stock) stock -= qty;
+    }
+
+    void increaseStock(int qty) {
+        stock += qty;
+    }
+
+    void display() const override {
+        cout << name << " - $" << price << " (Available: " << stock << ")";
+    }
+};
 int main() {
     return 0;
 }
