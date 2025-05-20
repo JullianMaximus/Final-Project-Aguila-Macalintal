@@ -20,5 +20,5 @@ How to run the code:
 - Exit the program when done.
 
 Team:
-Macalintal, John Benedict
-Aguila, Josemari Angelo
+- Macalintal, John Benedict
+- Aguila, Josemari Angelo
