@@ -67,10 +67,8 @@ public:
         cout << name << " - $" << price << " (Available: " << stock << ")";
     }
 };
-<<<<<<< Updated upstream
-int main() {
-=======
 
+int main() {
 class CartItem {
     public:
         Product* product;
@@ -267,6 +265,5 @@ int main() {
     }
 
     for (auto& item : storeItems) delete item;
->>>>>>> Stashed changes
     return 0;
 }
