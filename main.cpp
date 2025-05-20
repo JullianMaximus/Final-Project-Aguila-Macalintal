@@ -1,7 +1,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <vector>
 
 using namespace std;
 
@@ -83,136 +82,178 @@ public:
 };
 
 class CartItem {
-    public:
-        Product* product;
-        int quantity;
-    
-        CartItem(Product* product, int quantity) : product(product), quantity(quantity) {}
-        ~CartItem() { delete product; }
-    
-        double subtotal(const PricingStrategy& normal, const PricingStrategy& discount) const {
-            const PricingStrategy& strategy = (quantity >= 3) ? discount : normal;
-            return product->calculateCost(quantity, strategy);
+public:
+    Product* product;
+    int quantity;
+
+    CartItem(Product* product, int quantity) : product(product), quantity(quantity) {}
+
+    ~CartItem() {
+        delete product;
+    }
+
+    double subtotal(const PricingStrategy& normal, const PricingStrategy& discount) const {
+        const PricingStrategy& strategy = (quantity >= 3) ? discount : normal;
+        return product->calculateCost(quantity, strategy);
+    }
+
+    void display(const PricingStrategy& normal, const PricingStrategy& discount) const {
+        double cost = subtotal(normal, discount);
+        cout << product->getName() << " x" << quantity << " - $";
+        cout.precision(2);
+        cout << fixed << cost;
+        if (quantity >= 3) {
+            cout << " (20% discount applied for 3 or more items)";
         }
-    
-        void display(const PricingStrategy& normal, const PricingStrategy& discount) const {
-            double cost = subtotal(normal, discount);
-            cout << product->getName() << " x" << quantity << " - $";
-            cout.precision(2);
-            cout << fixed << cost;
-            if (quantity >= 3) {
-                cout << " (20% discount applied)";
-            }
-            cout << endl;
+        cout << endl;
+    }
+};
+
+class ShoppingCart {
+private:
+    vector<CartItem*> items;
+    NormalPricing normal;
+    DiscountPricing discount;
+
+public:
+    void addProduct(Product* product, int quantity) {
+        if (quantity <= 0) {
+            cout << "Quantity must be at least 1.\n";
+            delete product;
+            return;
         }
-    };
-    
-    class ShoppingCart {
-    private:
-        vector<CartItem*> items;
-        NormalPricing normal;
-        DiscountPricing discount;
-    
-    public:
-        void addProduct(Product* product, int quantity) {
-            if (quantity <= 0) return;
-            for (auto& item : items) {
-                if (item->product->getName() == product->getName()) {
-                    item->quantity += quantity;
-                    delete product;
-                    return;
-                }
-            }
-            items.push_back(new CartItem(product, quantity));
-        }
-    
-        void displayCart() const {
-            for (size_t i = 0; i < items.size(); ++i) {
-                cout << i + 1 << ". ";
-                items[i]->display(normal, discount);
-            }
-        }
-    
-        void removeProduct(int index) {
-            if (index >= 0 && index < (int)items.size()) {
-                delete items[index];
-                items.erase(items.begin() + index);
+        for (auto& item : items) {
+            if (item->product->getName() == product->getName()) {
+                item->quantity += quantity;
+                cout << "Updated quantity of " << product->getName() << " to " << item->quantity << ".\n";
+                delete product;
+                return;
             }
         }
-    
-        double calculateTotal() const {
-            double total = 0.0;
-            for (const auto& item : items)
-                total += item->subtotal(normal, discount);
-            return total;
+        items.push_back(new CartItem(product, quantity));
+        cout << product->getName() << " added to cart with quantity " << quantity << ".\n";
+    }
+
+    void displayCart() const {
+        if (items.empty()) {
+            cout << "Cart is empty.\n";
+            return;
         }
-    
-        void generateReceipt() const {
-            cout << "\n--- Receipt ---\n";
-            for (const auto& item : items)
-                item->display(normal, discount);
-            cout.precision(2);
-            cout << fixed << "Total: $" << calculateTotal() << "\n";
+        cout << "\n--- Shopping Cart ---\n";
+        for (size_t i = 0; i < items.size(); ++i) {
+            cout << i + 1 << ". ";
+            items[i]->display(normal, discount);
         }
-    
-        const vector<CartItem*>& getItems() const {
-            return items;
+    }
+
+    void removeProduct(int index) {
+        if (index >= 0 && index < (int)items.size()) {
+            delete items[index];
+            items.erase(items.begin() + index);
+            cout << "Product removed.\n";
+        } else {
+            cout << "Invalid product index.\n";
         }
-    
-        void clearCart() {
-            for (auto& item : items)
-                delete item;
-            items.clear();
+    }
+
+    double calculateTotal() const {
+        double total = 0.0;
+        for (const auto& item : items) {
+            total += item->subtotal(normal, discount);
         }
-    
-        ~ShoppingCart() {
-            clearCart();
+        return total;
+    }
+
+    void generateReceipt() const {
+        if (items.empty()) {
+            cout << "Cart is empty. Nothing to checkout.\n";
+            return;
         }
-    };
-    class User {
-        public:
-            string username;
-            string password;
-        
-            User(const string& uname, const string& pwd) : username(uname), password(pwd) {}
-        };
-        
-        class UserSystem {
-        private:
-            vector<User> users;
-        
-        public:
-            void signup(const string& uname, const string& pwd) {
-                for (const auto& u : users) {
-                    if (u.username == uname) {
-                        cout << "Username already exists.\n";
-                        return;
-                    }
-                }
-                if (uname.empty() || pwd.empty()) {
-                    cout << "Username and password cannot be empty.\n";
-                    return;
-                }
-                users.push_back(User(uname, pwd));
-                cout << "Signup successful!\n";
+        cout << "\n--- Receipt ---\n";
+        for (const auto& item : items) {
+            item->display(normal, discount);
+        }
+        cout.precision(2);
+        cout << fixed << "Total: $" << calculateTotal() << "\n";
+        cout << "Thank you for shopping with us!\n";
+    }
+
+    const vector<CartItem*>& getItems() const {
+        return items;
+    }
+
+    void clearCart() {
+        for (auto& item : items) {
+            delete item;
+        }
+        items.clear();
+        cout << "Cart has been cleared.\n";
+    }
+
+    ~ShoppingCart() {
+        clearCart();
+    }
+};
+
+class User {
+public:
+    string username;
+    string password;
+
+    User(const string& uname, const string& pwd) : username(uname), password(pwd) {}
+};
+
+class UserSystem {
+private:
+    vector<User> users;
+
+public:
+    void signup(const string& uname, const string& pwd) {
+        for (const auto& u : users) {
+            if (u.username == uname) {
+                cout << "Username already exists.\n";
+                return;
             }
-        
-            bool login(const string& uname, const string& pwd) const {
-                for (const auto& u : users) {
-                    if (u.username == uname && u.password == pwd) {
-                        cout << "Login successful!\n";
-                        return true;
-                    }
-                }
-                cout << "Invalid credentials.\n";
-                return false;
+        }
+        if (uname.empty() || pwd.empty()) {
+            cout << "Username and password cannot be empty.\n";
+            return;
+        }
+        users.push_back(User(uname, pwd));
+        cout << "Signup successful! Please login to continue.\n";
+    }
+
+    bool login(const string& uname, const string& pwd) const {
+        for (const auto& u : users) {
+            if (u.username == uname && u.password == pwd) {
+                cout << "Login successful!\n";
+                return true;
             }
-        
-            bool noUsers() const {
-                return users.empty();
-            }
-        };
-        
+        }
+        cout << "Invalid username or password.\n";
+        return false;
+    }
+
+    bool noUsers() const {
+        return users.empty();
+    }
+};
+
+void safeInputInt(int& var, const string& prompt) {
+    while (true) {
+        cout << prompt;
+        cin >> var;
+        if (cin.fail()) {
+            cin.clear();
+            while (cin.get() != '\n');
+            cout << "Invalid input. Please enter a number.\n";
+        } else {
+            while (cin.get() != '\n');
+            break;
+        }
+    }
+}
+
 int main() {
     UserSystem userSystem;
     ShoppingCart cart;
