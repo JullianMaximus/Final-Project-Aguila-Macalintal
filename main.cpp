@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -68,7 +69,6 @@ public:
     }
 };
 
-int main() {
 class CartItem {
     public:
         Product* product;
@@ -199,7 +199,6 @@ class CartItem {
                 return users.empty();
             }
         };
-        
 int main() {
     UserSystem userSystem;
     ShoppingCart cart;
