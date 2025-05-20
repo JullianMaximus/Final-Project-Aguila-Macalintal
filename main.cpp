@@ -200,6 +200,69 @@ class CartItem {
             }
         };
 int main() {
+    UserSystem userSystem;
+    ShoppingCart cart;
 
+    string uname, pwd;
+    int choice;
+
+    while (true) {
+        cout << "1. Signup\n2. Login\nChoose: ";
+        cin >> choice;
+
+        cout << "Username: ";
+        cin >> uname;
+        cout << "Password: ";
+        cin >> pwd;
+
+        if (choice == 1) {
+            userSystem.signup(uname, pwd);
+        } else if (choice == 2) {
+            if (userSystem.login(uname, pwd)) break;
+        }
+    }
+
+    vector<Product*> storeItems = {
+        new Clothing("Vintage Tee", 14.99, 10),
+        new Clothing("Graphic Shirt", 19.99, 5),
+        new Clothing("Plain White Tee", 9.99, 20)
+    };
+
+    int opt;
+    bool shopping = true;
+
+    while (shopping) {
+        cout << "\nAvailable Shirts:\n";
+        for (size_t i = 0; i < storeItems.size(); ++i) {
+            cout << i + 1 << ". ";
+            storeItems[i]->display();
+            cout << "\n";
+        }
+
+        cout << "\n1. Add to Cart\n2. View Cart\n3. Checkout\n4. Exit\nChoice: ";
+        cin >> opt;
+
+        if (opt == 1) {
+            int idx, qty;
+            cout << "Enter product index: "; cin >> idx;
+            cout << "Enter quantity: "; cin >> qty;
+            Clothing* shirt = dynamic_cast<Clothing*>(storeItems[idx - 1]);
+            if (shirt && qty > 0 && qty <= shirt->getStock()) {
+                cart.addProduct(new Clothing(shirt->getName(), shirt->getPrice(), 0), qty);
+                shirt->reduceStock(qty);
+            } else {
+                cout << "Invalid quantity or product.\n";
+            }
+        } else if (opt == 2) {
+            cart.displayCart();
+        } else if (opt == 3) {
+            cart.generateReceipt();
+            cart.clearCart();
+        } else {
+            shopping = false;
+        }
+    }
+
+    for (auto& item : storeItems) delete item;
     return 0;
 }
